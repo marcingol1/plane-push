@@ -58,7 +58,6 @@ export default function App() {
   ]);
 
   function addBox() {
-    console.log(camera, mouse, raycaster);
     setBoxes([
       ...boxes,
       [
