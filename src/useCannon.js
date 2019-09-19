@@ -9,8 +9,8 @@ export function Provider({ children }) {
   const [world] = useState(() => new CANNON.World());
   useEffect(() => {
     world.broadphase = new CANNON.NaiveBroadphase();
-    world.solver.iterations = 20;
-    world.gravity.set(0, 0, -10);
+    world.solver.iterations = 200;
+    world.gravity.set(0, 0, -9.8);
   }, [world]);
 
   // Run world stepper every frame

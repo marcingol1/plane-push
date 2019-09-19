@@ -1,20 +1,9 @@
-/** POC for three-fiber and cannon (a 3d physics lib)
- *
- *  useCannon is a custom hook that lets you link a physics body to a threejs
- *  mesh with zero effort. It will automatically update the mesh with the
- *  correct positioning.
- *
- *  When components with useCannon mount they are known to cannons world, when
- *  they unmount, they'll remove themselves from physics processing.
- *
- *  Check out three-fiber here: https://github.com/drcmda/rea sct-three-fiber
- */
-
 import * as THREE from "three";
 import * as CANNON from "cannon";
-import React, { useEffect, useState } from "react";
-import { Canvas } from "react-three-fiber";
+import React, { useRef, useState } from "react";
+import { Canvas, useThree, useRender, apply } from "react-three-fiber";
 import { useCannon, Provider } from "./useCannon";
+import { OrbitControls } from "./resources/OrbitControls";
 import "./styles.css";
 
 function Plane({ position }) {
@@ -25,8 +14,8 @@ function Plane({ position }) {
   });
   return (
     <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[1000, 1000]} />
-      <meshPhongMaterial attach="material" color="#272727" />
+      <planeBufferGeometry attach="geometry" args={[100, 100]} />
+      <meshPhongMaterial attach="material" color="#323247" />
     </mesh>
   );
 }
@@ -45,39 +34,64 @@ function Box({ position }) {
   );
 }
 
+apply({ OrbitControls });
+
+function Controls(props) {
+  const ref = useRef();
+  const { camera } = useThree();
+  useRender(() => {
+    ref.current.update();
+  });
+
+  return <orbitControls ref={ref} args={[camera]} {...props} />;
+}
+
 export default function App() {
-  const [showPlane, set] = useState(true);
-  // When React removes (unmounts) the upper plane after 5 sec, objects should drop ...
-  // This may seem like magic, but as the plane unmounts it removes itself from cannon and that's that
-  useEffect(() => void setTimeout(() => set(false), 5000), []);
+  const { camera, mouse, raycaster } = useThree();
+  const [boxes, setBoxes] = useState([
+    [1, 0, 2],
+    [2, 1, 2],
+    [0, 0, 2],
+    [-1, 1, 8],
+    [-2, 2, 23],
+    [2, -1, 13]
+  ]);
+
+  function addBox() {
+    console.log(camera, mouse, raycaster);
+    setBoxes([
+      ...boxes,
+      [
+        Math.round(Math.random() * 100) - 55,
+        Math.round(Math.random() * 100) - 55,
+        50
+      ]
+    ]);
+  }
   return (
     <div className="main">
       <Canvas
-        camera={{ position: [0, 0, 15] }}
+        camera={{ position: [0, 0, 100], type: "Perspective Camera" }}
         onCreated={({ gl }) => (
           (gl.shadowMap.enabled = true),
           (gl.shadowMap.type = THREE.PCFSoftShadowMap)
         )}
-        onClick={event => console.log(event)}
+        onClick={addBox}
       >
-        <ambientLight intensity={0.5} />
+        <Controls />
+        <ambientLight intensity={0.7} />
         <spotLight
           intensity={0.6}
           position={[30, 30, 50]}
-          angle={0.2}
-          penumbra={1}
+          angle={0.5}
+          penumbra={0.1}
           castShadow
         />
         <Provider>
-          <Plane position={[0, 0, -10]} />
-          {showPlane && <Plane position={[0, 0, 0]} />}
-          <Box position={[1, 0, 2]} />
-          <Box position={[2, 1, 2]} />
-          <Box position={[0, 0, 2]} />
-          <Box position={[-1, 1, 8]} />
-          <Box position={[-2, 2, 23]} />
-          <Box position={[2, -1, 13]} />
-          {!showPlane && <Box position={[0.5, 1.0, 20]} />}
+          <Plane position={[5, 5, 5]} />
+          {boxes.map((box, index) => (
+            <Box position={box} key={box + index} />
+          ))}
         </Provider>
       </Canvas>
     </div>
