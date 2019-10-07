@@ -1,98 +1,94 @@
-import * as THREE from "three";
-import * as CANNON from "cannon";
-import React, { useRef, useState } from "react";
-import { Canvas, useThree, useRender, apply } from "react-three-fiber";
-import { useCannon, Provider } from "./useCannon";
-import { OrbitControls } from "./resources/OrbitControls";
-import "./styles.css";
+import React, { useState } from "react";
+import styled, {
+  ThemeProvider as StyledThemeProvider
+} from "styled-components";
+import { Typography, createMuiTheme } from "@material-ui/core";
+import produce from "immer";
+import { ThemeProvider, StylesProvider } from "@material-ui/styles";
+import { purple, indigo } from "@material-ui/core/colors";
 
-function Plane({ position }) {
-  // Register plane as a physics body with zero mass
-  const ref = useCannon({ mass: 0 }, body => {
-    body.addShape(new CANNON.Plane());
-    body.position.set(...position);
-  });
-  return (
-    <mesh ref={ref} receiveShadow>
-      <planeBufferGeometry attach="geometry" args={[100, 100]} />
-      <meshPhongMaterial attach="material" color="#323247" />
-    </mesh>
-  );
-}
+const AppStyled = styled.div`
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
 
-function Box({ position }) {
-  // Register box as a physics body with mass
-  const ref = useCannon({ mass: 100000 }, body => {
-    body.addShape(new CANNON.Box(new CANNON.Vec3(1, 1, 1)));
-    body.position.set(...position);
-  });
-  return (
-    <mesh ref={ref} castShadow receiveShadow>
-      <boxGeometry attach="geometry" args={[2, 2, 2]} />
-      <meshStandardMaterial attach="material" />
-    </mesh>
-  );
-}
+const Board = styled.div`
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  border: 2px solid ${props => props.theme.palette.primary[500]};
+  background-color: ${props => props.theme.palette.primary[600]};
+  grid-gap: 2px;
+  height: 80vh;
+  width: 80vh;
+`;
 
-apply({ OrbitControls });
-
-function Controls(props) {
-  const ref = useRef();
-  const { camera } = useThree();
-  useRender(() => {
-    ref.current.update();
-  });
-
-  return <orbitControls ref={ref} args={[camera]} {...props} />;
-}
-
-export default function App() {
-  const { camera, mouse, raycaster } = useThree();
-  const [boxes, setBoxes] = useState([
-    [1, 0, 2],
-    [2, 1, 2],
-    [0, 0, 2],
-    [-1, 1, 8],
-    [-2, 2, 23],
-    [2, -1, 13]
-  ]);
-
-  function addBox() {
-    setBoxes([
-      ...boxes,
-      [
-        Math.round(Math.random() * 100) - 55,
-        Math.round(Math.random() * 100) - 55,
-        50
-      ]
-    ]);
+const Piece = styled.div`
+  background-color: ${props =>
+    props.selected
+      ? props.theme.palette.primary.main
+      : props.theme.palette.secondary[400]};
+  height: 100%;
+  &:hover {
+    background-color: ${props => props.theme.palette.secondary[600]};
   }
-  return (
-    <div className="main">
-      <Canvas
-        camera={{ position: [0, 0, 100], type: "Perspective Camera" }}
-        onCreated={({ gl }) => (
-          (gl.shadowMap.enabled = true),
-          (gl.shadowMap.type = THREE.PCFSoftShadowMap)
-        )}
-        onClick={addBox}
-      >
-        <Controls />
-        <ambientLight intensity={0.7} />
-        <spotLight
-          intensity={0.6}
-          position={[30, 30, 50]}
-          angle={0.5}
-          penumbra={0.1}
-          castShadow
-        />
-        <Provider>
-          <Plane position={[5, 5, 5]} />
-          {boxes.map((box, index) => (
-            <Box position={box} key={box + index} />
-          ))}
-        </Provider>
-      </Canvas>
-    </div>
+`;
+
+function generatePiece() {
+  return {
+    value: false
+  };
+}
+function generateBoard(size) {
+  return Array.from({ length: size }).map(() =>
+    Array.from({ length: size }).map(generatePiece)
   );
 }
+const size = 12;
+
+function App() {
+  const theme = createMuiTheme({
+    palette: {
+      primary: purple,
+      secondary: indigo
+    }
+  });
+  const [board, setBoard] = useState(generateBoard(size));
+  console.log(board);
+
+  function togglePiece(_item, row, pieceIndex) {
+    const newStateBoard = produce(board, draft => {
+      draft[row][pieceIndex].value = !draft[row][pieceIndex].value;
+    });
+    setBoard(newStateBoard);
+  }
+
+  return (
+    <ThemeProvider theme={theme}>
+      <StylesProvider injectFirst>
+        <StyledThemeProvider theme={theme}>
+          <AppStyled>
+            <Typography variant="h2" align="center">
+              Board game
+            </Typography>
+            <Board>
+              {board.map((row, rowIndex) => {
+                return row.map((item, pieceIndex) => (
+                  <Piece
+                    selected={item.value}
+                    key={rowIndex + pieceIndex}
+                    onClick={() => togglePiece(item, rowIndex, pieceIndex)}
+                  />
+                ));
+              })}
+            </Board>
+          </AppStyled>
+        </StyledThemeProvider>
+      </StylesProvider>
+    </ThemeProvider>
+  );
+}
+
+export default App;
