@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { Typography } from "@material-ui/core";
-import produce from "immer";
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
+import produce from 'immer';
 
 const AppStyled = styled.div`
   display: grid;
@@ -34,13 +34,13 @@ const Piece = styled.div`
 
 function generatePiece() {
   return {
-    value: false
+    value: false,
+    uid: 0,
+    color: 'purple'
   };
 }
-function generateBoard(size) {
-  return Array.from({ length: size }).map(() =>
-    Array.from({ length: size }).map(generatePiece)
-  );
+export function generateBoard(size) {
+  return Array.from({ length: size * size }).map(generatePiece);
 }
 const size = 12;
 
