@@ -16,6 +16,7 @@ import styled from 'styled-components';
 import * as firebase from 'firebase';
 import 'firebase/database';
 import CloseIcon from '@material-ui/icons/Close';
+import randomColor from 'randomcolor';
 
 import DirectionsWalkIcon from '@material-ui/icons/DirectionsWalk';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
@@ -26,7 +27,7 @@ import { generateBoard } from './board';
 const ServerListContainer = styled.div`
   display: grid;
   grid-template-areas: 'rooms-list room-details';
-  grid-template-columns: 20% 1fr;
+  grid-template-columns: 1fr 4fr;
   height: 100%;
 `;
 
@@ -75,6 +76,7 @@ function Server({ userId }) {
   const [advanced, setAdvanced] = useState(false);
 
   const [room, setRoom] = useState(null);
+  const [roomId, setRoomId] = useState(null);
 
   useEffect(() => {
     const detach = firestore.collection('rooms').onSnapshot(snapshot => {
@@ -86,6 +88,17 @@ function Server({ userId }) {
     });
     return () => detach();
   }, [firestore]);
+
+  useEffect(() => {
+    const detach = firestore.collection('roomDetail').onSnapshot(snapshot => {
+      snapshot.forEach(room => {
+        if (room.id === roomId) {
+          setRoom(room.data());
+        }
+      });
+    });
+    return () => detach();
+  }, [firestore, roomId]);
 
   function createRoom() {
     console.log(name, capacity, language);
@@ -114,17 +127,49 @@ function Server({ userId }) {
       .get()
       .then(snapshot => {
         snapshot.forEach(dataRoom => {
-          console.log(dataRoom.data());
           const data = dataRoom.data();
           firestore
             .collection('roomDetail')
             .doc(dataRoom.id)
             .update({
-              players: [...data.players.filter(id => id !== userId), userId]
+              players: [
+                ...data.players.filter(player => player.id !== userId),
+                { id: userId, color: randomColor() }
+              ]
+            })
+            .then(() => {
+              firestore
+                .collection('roomDetail')
+                .doc(dataRoom.id)
+                .get()
+                .then(updatedRoom => {
+                  const updatedData = updatedRoom.data();
+                  setRoom(updatedData);
+                  setRoomId(updatedRoom.id);
+                });
             });
-          setRoom(dataRoom);
         });
       });
+  }
+
+  async function updatePiece(newStateBoard) {
+    if (!roomId) {
+      return;
+    }
+
+    const update = await firestore
+      .collection('roomDetail')
+      .doc(roomId)
+      .update({
+        board: newStateBoard
+      });
+    console.log(update);
+
+    const data = await firestore
+      .collection('roomDetail')
+      .doc(roomId)
+      .get();
+    setRoom(data.data());
   }
 
   return (
@@ -213,7 +258,7 @@ function Server({ userId }) {
             Add a room
           </Button>
         </RoomsList>
-        <RoomDetails room={room} />
+        <RoomDetails room={room} user={userId} updatePiece={updatePiece} />
       </ServerListContainer>
     </Fragment>
   );

@@ -1,8 +1,20 @@
-import React from 'react';
-import { Typography } from '@material-ui/core';
+import React, { Fragment } from 'react';
+import Board from './board';
 
-function RoomDetails({ room }) {
-  return <Typography variant="h5">{room ? 'Room details' : ''}</Typography>;
+function RoomDetails({ room, user, updatePiece }) {
+  if (!room) {
+    return null;
+  }
+  const player = room.players.find(player => player.id === user);
+  return (
+    <Fragment>
+      <Board
+        board={room.board}
+        color={player.color}
+        updatePiece={updatePiece}
+      />
+    </Fragment>
+  );
 }
 
 export default RoomDetails;

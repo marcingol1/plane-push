@@ -12,6 +12,7 @@
     "immer": "^4.0.1",
     "install": "^0.13.0",
     "npm": "^6.11.3",
+    "randomcolor": "^0.5.4",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-router-dom": "^5.1.2",

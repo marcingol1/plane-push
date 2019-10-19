@@ -57,6 +57,7 @@ function Login({ setAuthorized, setUserId }) {
   }
 
   function register() {
+    console.log('email', email, password);
     auth
       .createUserWithEmailAndPassword(email, password)
       .then(res => {
@@ -75,13 +76,13 @@ function Login({ setAuthorized, setUserId }) {
     <ContainerForm noValidate autoComplete="true">
       <TextField
         label="Login"
-        onChange={(_event, value) => setEmail(value)}
+        onChange={event => setEmail(event.target.value)}
         value={email}
       />
       <TextField
         label="Password"
         type="password"
-        onChange={(_event, value) => setPassword(value)}
+        onChange={event => setPassword(event.target.value)}
         value={password}
       />
       <Button color="primary" variant="contained" onClick={login}>
