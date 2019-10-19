@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Typography, IconButton } from '@material-ui/core';
 import produce from 'immer';
+import BackIcon from '@material-ui/icons/ArrowBack';
 
 const AppStyled = styled.div`
   display: grid;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  width: 100%;
+  width: 100vw;
 `;
 
 const BoardStyled = styled.div`
@@ -18,8 +19,8 @@ const BoardStyled = styled.div`
   border: 2px solid ${props => props.theme.palette.primary[500]};
   background-color: ${props => props.theme.palette.primary[600]};
   grid-gap: 2px;
-  height: 80vh;
-  width: 80vh;
+  height: 90vw;
+  width: 90vw;
 `;
 
 const Piece = styled.div`
@@ -29,6 +30,10 @@ const Piece = styled.div`
   &:hover {
     background-color: ${props => props.selectColor};
   }
+`;
+
+const TitleContainer = styled.div`
+  padding: 2em;
 `;
 
 function generatePiece() {
@@ -42,7 +47,7 @@ export function generateBoard(size) {
   return Array.from({ length: size * size }).map(generatePiece);
 }
 
-function Board({ board, color, updatePiece }) {
+function Board({ setRoom, board, color, updatePiece }) {
   const [boardState, setBoard] = useState(board);
 
   useEffect(() => {
@@ -60,9 +65,14 @@ function Board({ board, color, updatePiece }) {
 
   return (
     <AppStyled>
-      <Typography variant="h2" align="center">
-        Board game
-      </Typography>
+      <TitleContainer>
+        <IconButton onClick={() => setRoom(null)}>
+          <BackIcon />
+        </IconButton>
+        <Typography variant="h2" align="center" color="primary">
+          Board game
+        </Typography>
+      </TitleContainer>
       <BoardStyled size={Math.sqrt(board.length)}>
         {boardState.map((item, index) => (
           <Piece

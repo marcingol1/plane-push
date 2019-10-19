@@ -63,6 +63,7 @@ const RoomForm = styled.form`
   padding: 2em;
   justify-content: center;
   align-items: center;
+  grid-gap: 0.5em;
 `;
 
 function Server({ userId }) {
@@ -101,7 +102,6 @@ function Server({ userId }) {
   }, [firestore, roomId]);
 
   function createRoom() {
-    console.log(name, capacity, language);
     setModal(false);
     firestore
       .collection('rooms')
@@ -113,7 +113,7 @@ function Server({ userId }) {
       })
       .then(function(docRef) {
         firestore.collection('roomDetail').add({
-          board: generateBoard(capacity),
+          board: generateBoard(capacity < 50 ? capacity : 50),
           players: [],
           roomId: docRef.id
         });
@@ -157,13 +157,12 @@ function Server({ userId }) {
       return;
     }
 
-    const update = await firestore
+    await firestore
       .collection('roomDetail')
       .doc(roomId)
       .update({
         board: newStateBoard
       });
-    console.log(update);
 
     const data = await firestore
       .collection('roomDetail')
@@ -200,6 +199,7 @@ function Server({ userId }) {
               label="Capacity"
               type="number"
               value={capacity}
+              error={capacity > 50}
               onChange={event => setCapacity(event.target.value)}
             />
             <TextField
@@ -229,36 +229,43 @@ function Server({ userId }) {
         </RoomFormContainer>
       </Dialog>
       <ServerListContainer>
-        <RoomsList>
-          <Typography align="center" variant="h3" color="primary">
-            Rooms list
-          </Typography>
-          <List>
-            {rooms.map(room => (
-              <ListItem button key={room.id} onClick={() => chooseRoom(room)}>
-                <ListItemIcon>
-                  {room.data.type === 'advanced' ? (
-                    <DirectionsRunIcon />
-                  ) : (
-                    <DirectionsWalkIcon />
-                  )}
-                </ListItemIcon>
-                <ListItemText
-                  primary={room.data.name}
-                  secondary={`Capacity: ${room.data.capacity}, language: ${room.data.language}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-          <Button
-            onClick={() => setModal(true)}
-            variant="contained"
-            color="primary"
-          >
-            Add a room
-          </Button>
-        </RoomsList>
-        <RoomDetails room={room} user={userId} updatePiece={updatePiece} />
+        {!room && (
+          <RoomsList>
+            <Typography align="center" variant="h3" color="primary">
+              Rooms list
+            </Typography>
+            <List>
+              {rooms.map(room => (
+                <ListItem button key={room.id} onClick={() => chooseRoom(room)}>
+                  <ListItemIcon>
+                    {room.data.type === 'advanced' ? (
+                      <DirectionsRunIcon />
+                    ) : (
+                      <DirectionsWalkIcon />
+                    )}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={room.data.name}
+                    secondary={`Capacity: ${room.data.capacity}, language: ${room.data.language}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <Button
+              onClick={() => setModal(true)}
+              variant="contained"
+              color="primary"
+            >
+              Add a room
+            </Button>
+          </RoomsList>
+        )}
+        <RoomDetails
+          setRoom={setRoom}
+          room={room}
+          user={userId}
+          updatePiece={updatePiece}
+        />
       </ServerListContainer>
     </Fragment>
   );

@@ -44,20 +44,16 @@ function Login({ setAuthorized, setUserId }) {
     auth
       .signInWithEmailAndPassword(email, password)
       .then(res => {
-        console.log(res, setAuthorized);
         if (res.user) {
           setAuthorized(true);
         } else {
           setAuthorized(false);
         }
       })
-      .catch(function(error) {
-        console.log(error);
-      });
+      .catch(function() {});
   }
 
   function register() {
-    console.log('email', email, password);
     auth
       .createUserWithEmailAndPassword(email, password)
       .then(res => {
@@ -67,9 +63,7 @@ function Login({ setAuthorized, setUserId }) {
           setAuthorized(false);
         }
       })
-      .catch(function(error) {
-        console.log(error);
-      });
+      .catch(function() {});
   }
 
   return (

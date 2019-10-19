@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import Board from './board';
 
-function RoomDetails({ room, user, updatePiece }) {
+function RoomDetails({ setRoom, room, user, updatePiece }) {
   if (!room) {
     return null;
   }
@@ -9,6 +9,7 @@ function RoomDetails({ room, user, updatePiece }) {
   return (
     <Fragment>
       <Board
+        setRoom={setRoom}
         board={room.board}
         color={player.color}
         updatePiece={updatePiece}
