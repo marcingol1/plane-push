@@ -56,7 +56,7 @@ function Board({ setRoom, board, color, updatePiece }) {
 
   function togglePiece(index) {
     const newStateBoard = produce(board, draft => {
-      draft[index].value = !draft[index].value;
+      draft[index].value = true; // !draft[index].value;
       draft[index].color = color;
     });
     setBoard(newStateBoard);

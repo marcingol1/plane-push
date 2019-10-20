@@ -66,6 +66,10 @@ const RoomForm = styled.form`
   grid-gap: 0.5em;
 `;
 
+const ListStyled = styled(List)`
+  overflow: auto;
+`;
+
 function Server({ userId }) {
   const [firestore] = useState(firebase.firestore());
   const [rooms, setRooms] = useState([]);
@@ -234,7 +238,7 @@ function Server({ userId }) {
             <Typography align="center" variant="h3" color="primary">
               Rooms list
             </Typography>
-            <List>
+            <ListStyled>
               {rooms.map(room => (
                 <ListItem button key={room.id} onClick={() => chooseRoom(room)}>
                   <ListItemIcon>
@@ -250,7 +254,7 @@ function Server({ userId }) {
                   />
                 </ListItem>
               ))}
-            </List>
+            </ListStyled>
             <Button
               onClick={() => setModal(true)}
               variant="contained"

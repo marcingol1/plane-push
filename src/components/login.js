@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 
 import * as firebase from 'firebase/app';
-import 'firebase/auth';
 import { TextField, Button } from '@material-ui/core';
 import styled from 'styled-components';
+import 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDvh3Px2skXLNZr0NsdAuFbpYakmTSpALo',
@@ -40,30 +40,22 @@ function Login({ setAuthorized, setUserId }) {
     });
   }, [setAuthorized, auth, setUserId]);
 
-  function login() {
-    auth
-      .signInWithEmailAndPassword(email, password)
-      .then(res => {
-        if (res.user) {
-          setAuthorized(true);
-        } else {
-          setAuthorized(false);
-        }
-      })
-      .catch(function() {});
+  async function login() {
+    const res = auth.signInWithEmailAndPassword(email, password);
+    if (res.user) {
+      setAuthorized(true);
+    } else {
+      setAuthorized(false);
+    }
   }
 
-  function register() {
-    auth
-      .createUserWithEmailAndPassword(email, password)
-      .then(res => {
-        if (res.user) {
-          setAuthorized(true);
-        } else {
-          setAuthorized(false);
-        }
-      })
-      .catch(function() {});
+  async function register() {
+    const res = auth.createUserWithEmailAndPassword(email, password);
+    if (res.user) {
+      setAuthorized(true);
+    } else {
+      setAuthorized(false);
+    }
   }
 
   return (
