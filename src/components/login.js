@@ -41,7 +41,7 @@ function Login({ setAuthorized, setUserId }) {
   }, [setAuthorized, auth, setUserId]);
 
   async function login() {
-    const res = auth.signInWithEmailAndPassword(email, password);
+    const res = await auth.signInWithEmailAndPassword(email, password);
     if (res.user) {
       setAuthorized(true);
     } else {
@@ -50,7 +50,7 @@ function Login({ setAuthorized, setUserId }) {
   }
 
   async function register() {
-    const res = auth.createUserWithEmailAndPassword(email, password);
+    const res = await auth.createUserWithEmailAndPassword(email, password);
     if (res.user) {
       setAuthorized(true);
     } else {

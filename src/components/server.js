@@ -105,23 +105,20 @@ function Server({ userId }) {
     return () => detach();
   }, [firestore, roomId]);
 
-  function createRoom() {
+  async function createRoom() {
     setModal(false);
-    firestore
-      .collection('rooms')
-      .add({
-        name,
-        capacity,
-        language,
-        type: advanced ? 'advanced' : 'normal'
-      })
-      .then(function(docRef) {
-        firestore.collection('roomDetail').add({
-          board: generateBoard(capacity < 50 ? capacity : 50),
-          players: [],
-          roomId: docRef.id
-        });
-      });
+    const docRef = await firestore.collection('rooms').add({
+      name,
+      capacity,
+      language,
+      type: advanced ? 'advanced' : 'normal'
+    });
+
+    firestore.collection('roomDetail').add({
+      board: generateBoard(capacity < 50 ? capacity : 50),
+      players: [],
+      roomId: docRef.id
+    });
   }
 
   function chooseRoom(room) {
