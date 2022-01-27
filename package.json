@@ -20,7 +20,7 @@
     "react-three-fiber": "^2.4.3",
     "stats.js": "^0.17.0",
     "styled-components": "^4.4.0",
-    "three": "^0.108.0",
+    "three": "^0.137.0",
     "three-full": "^17.1.0"
   },
   "scripts": {
